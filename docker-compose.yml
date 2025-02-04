@@ -3,7 +3,8 @@ version: '3.8'
 services:
 
   mq:
-    image: ibm-mqadvanced-server-dev:9.2.4.0-amd64
+    platform: linux/amd64
+    image: ibm-mqadvanced-server-dev:9.4.1.1-amd64
     ports:
       - "1414:1414"
       - "9443:9443"
@@ -11,10 +12,12 @@ services:
     environment:
       LICENSE: accept
       MQ_QMGR_NAME: QM1
-      MQ_APP_PASSWORD: passw0rd
+    secrets:
+      - mqAdminPassword
+      - mqAppPassword
     healthcheck:
       test: ["CMD", "sh", "-c", "tail -n 5 /var/mqm/qmgrs/QM1/errors/amqp_0.log | grep 'AMQP Service started successfully'"]
-      interval: 2s
+      interval: 1m30s
       retries: 20
     networks:
       - amqp-quickstart-network
@@ -51,3 +54,9 @@ services:
 
 networks:
   amqp-quickstart-network:
+
+secrets:
+  mqAdminPassword:
+    file: "admin-password.txt"
+  mqAppPassword:
+    file: "app-password.txt"
